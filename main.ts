@@ -1,53 +1,17 @@
-import * as fs from "node:fs";
-import * as path from "node:path";
+import { writeFileSync, mkdirSync } from "node:fs";
+import { join } from "node:path";
 
-function composeEntry(): string {
-  const blocks: string[][] = [
-  [
-    "Recurring Cart"
-  ],
-  [
-    "Every Friday at nine the grocery bot",
-    "restocked the kitchen we used to share:",
-    "two trout fillets, a pint of cream,",
-    "the almond biscuits she always ate stale.",
-    "For four months after the funeral",
-    "I never changed a single line.",
-    "Throwing half the fridge out on Wednesdays",
-    "was cheaper than opening the edit button."
-  ],
-  [
-    "This morning the confirmation pinged:",
-    "Same order as last week?"
-  ],
-  [
-    "My thumb stayed over Confirm—",
-    "one tap to keep Tuesday mornings looking full.",
-    "Instead I canceled the subscription,",
-    "put on my coat, and took a noisy metal cart",
-    "down aisle four myself—",
-    "choosing one onion, one small loaf,",
-    "one life I had been putting off",
-    "for four months."
-  ]
-];
-  return blocks.map((b) => b.join("\n")).join("\n\n");
+const OUTPUT_DIR = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
+
+const POEM: string = "The Weaver's Knot\n\nThe electric loom in town turns twenty yards an hour,\ntension monitored by laser across four thousand ends.\nIf a warp thread shears, a solenoid fires,\na nylon splice fuses beneath heat in four milliseconds,\nand the cloth rolls onward, uniform as painted tin.\n\nAt home on the countermarch loom,\nwhen the middle blue linen thread snapped tonight,\neverything stopped with a dry slap against the reed.\nNo alarm. Just the gap in the shed\nstaring up like an open eye.\n\nI took the spool of flax,\nlicked the two broken tips between my teeth,\nand tied a weaver's knot with my thumb against the heddle.\nI trimmed the tails with brass snips,\nleaving an eighth of an inch of fuzz where they crossed.\n\nThe machine makes a blanket without a seam.\nMine will have a small hard knob near the left border.\nWhen you pull the wool over your chin in the dark,\nyour finger will find that ridge in the cloth\nand know someone sat there\nand chose to mend the thread instead of throwing it away.";
+
+function main(): void {
+  const codePoints = [...POEM].length;
+  if (codePoints < 1 || codePoints > 1000 || !POEM.trim()) {
+    throw new Error(`Invalid poem length: ${codePoints}`);
+  }
+  mkdirSync(OUTPUT_DIR, { recursive: true });
+  writeFileSync(join(OUTPUT_DIR, "entry.txt"), POEM, "utf-8");
 }
 
-function emitEntry(): void {
-  const text = composeEntry();
-  const cp = Array.from(text).length;
-  if (cp === 0 || cp > 1000 || text.trim().length === 0) {
-    throw new Error("Poem gate invariant failed");
-  }
-  const targetDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
-  fs.mkdirSync(targetDir, { recursive: true });
-  const fd = fs.openSync(path.join(targetDir, "entry.txt"), "w");
-  try {
-    fs.writeSync(fd, text, 0, "utf8");
-  } finally {
-    fs.closeSync(fd);
-  }
-}
-
-emitEntry();
+main();
